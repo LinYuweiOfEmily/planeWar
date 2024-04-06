@@ -1,0 +1,14 @@
+package edu.hitsz.prop;
+
+public class BloodProp extends BaseProp{
+
+    private int blood = 20;
+
+    public int getBlood() {
+        return blood;
+    }
+
+    public BloodProp(int locationX, int locationY, int speedX, int speedY) {
+        super(locationX, locationY, speedX, speedY);
+    }
+}
