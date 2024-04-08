@@ -71,7 +71,7 @@ public class Game extends JPanel {
         heroAircraft = new HeroAircraft(
                 Main.WINDOW_WIDTH / 2,
                 Main.WINDOW_HEIGHT - ImageManager.HERO_IMAGE.getHeight(),
-                0, 0, 100);
+                0, 0, 500);
         props = new LinkedList<>();
         enemyAircrafts = new LinkedList<>();
         heroBullets = new LinkedList<>();
@@ -107,13 +107,16 @@ public class Game extends JPanel {
                 // 新敌机产生
 
                 if (enemyAircrafts.size() < enemyMaxNumber) {
+                    /**
+                     * 随机产生普通敌机或精英敌机
+                     */
                     double randomNumber = Math.random();
                     if (randomNumber < 0.85) {
                         enemyAircrafts.add(new MobEnemy(
                                 (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())),
                                 (int) (Math.random() * Main.WINDOW_HEIGHT * 0.05),
                                 0,
-                                10,
+                                5,
                                 30
                         ));
                     } else {
@@ -249,14 +252,14 @@ public class Game extends JPanel {
                     bullet.vanish();
                     if (enemyAircraft.notValid()) {
                         // TODO 获得分数，产生道具补给
-                        if (enemyAircraft instanceof MobEnemy) {
-                            MobEnemy mobEnemy = (MobEnemy) enemyAircraft;
+                        if (enemyAircraft instanceof MobEnemy mobEnemy) {
+                            //击杀普通敌机的效果
                             score += mobEnemy.getScore();
-                        } else if (enemyAircraft instanceof EliteAircraft) {
-                            EliteAircraft eliteAircraft = (EliteAircraft) enemyAircraft; // 将AbstractAircraft类型强制转换为EliteAircraft类型
+
+                        } else if (enemyAircraft instanceof EliteAircraft eliteAircraft) {
+                            //击杀精英敌机的效果
                             props.add(eliteAircraft.generateNewProp());
                             score += eliteAircraft.getScore();
-                            // 在这里执行与EliteAircraft相关的操作
                         }
                     }
                 }
@@ -277,36 +280,30 @@ public class Game extends JPanel {
             }
             if (heroAircraft.crash(prop)) {
                 // 英雄机撞击到道具
-                if (prop instanceof BloodProp) {
-                    // 处理BloodProp类型的道具
-                    BloodProp bloodProp = (BloodProp) prop; // 将BaseProp类型强制转换为BloodProp类型
-                    // 在这里执行与BloodProp相关的操作
+                if (prop instanceof BloodProp bloodProp) {
+
                     heroAircraft.increaseHp(bloodProp.getBlood());
 
-                } else if (prop instanceof BombProp) {
-                    // 处理BombProp类型的道具
-                    BombProp bombProp = (BombProp) prop; // 将BaseProp类型强制转换为BombProp类型
-                    // 在这里执行与BombProp相关的操作
+                } else if (prop instanceof BombProp bombProp) {
+
                     for (AbstractAircraft aircraft : enemyAircrafts) {
                         if (aircraft.notValid()) {
                             continue;
                         }
                         aircraft.decreaseHp(bombProp.getPower());
-                        if (aircraft instanceof MobEnemy) {
-                            MobEnemy mobEnemy = (MobEnemy) aircraft;
+                        if (aircraft instanceof MobEnemy mobEnemy) {
                             score += mobEnemy.getScore();
-                        } else {
-                            EliteAircraft eliteAircraft = (EliteAircraft) aircraft; // 将AbstractAircraft类型强制转换为EliteAircraft类型
+                        } else if(aircraft instanceof EliteAircraft eliteAircraft){
                             score += eliteAircraft.getScore();
                             iterator.add(eliteAircraft.generateNewProp());
                         }
                     }
-                } else if (prop instanceof BulletProp) {
-                    // 处理BulletProp类型的道具
-                    BulletProp bulletProp = (BulletProp) prop; // 将BaseProp类型强制转换为BulletProp类型
+                    System.out.println("BombSupply active");
+
+                } else if (prop instanceof BulletProp bulletProp) {
+
                     heroAircraft.increaseShootNum();
-                    // 在这里执行与BulletProp相关的操作
-//                    System.out.println("bullet!");
+                    System.out.println("FireSupply active");
 
                 }
                 prop.vanish();

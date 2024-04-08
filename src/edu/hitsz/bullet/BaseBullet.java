@@ -11,8 +11,18 @@ import edu.hitsz.basic.AbstractFlyingObject;
  */
 public abstract class BaseBullet extends AbstractFlyingObject {
 
+    /**
+     * 子弹的伤害
+     */
     private int power = 10;
 
+    /**
+     * @param locationX 子弹生成位置x坐标
+     * @param locationY 子弹生成位置y坐标
+     * @param speedX 子弹的x速度
+     * @param speedY 子弹的y速度
+     * @param power 子弹的伤害
+     */
     public BaseBullet(int locationX, int locationY, int speedX, int speedY, int power) {
         super(locationX, locationY, speedX, speedY);
         this.power = power;

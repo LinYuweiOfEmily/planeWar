@@ -18,7 +18,10 @@ public class EliteAircraft extends AbstractAircraft{
      */
     private int shootNum = 1;
 
-    private final int score = 100;
+    /**
+     * 击败精英敌机得到的分数
+     */
+    private int score = 100;
 
     public int getScore() {
         return score;
@@ -35,15 +38,16 @@ public class EliteAircraft extends AbstractAircraft{
     private int direction = 1;
 
     /**
-     * @param locationX 英雄机位置x坐标
-     * @param locationY 英雄机位置y坐标
-     * @param speedX 英雄机射出的子弹的基准速度（英雄机无特定速度）
-     * @param speedY 英雄机射出的子弹的基准速度（英雄机无特定速度）
+     * @param locationX 精英敌机位置x坐标
+     * @param locationY 精英敌机位置y坐标
+     * @param speedX 精英敌机射出的子弹的基准速度
+     * @param speedY 精英敌机射出的子弹的基准速度
      * @param hp    初始生命值
      */
     public EliteAircraft(int locationX, int locationY, int speedX, int speedY, int hp) {
         super(locationX, locationY, speedX, speedY, hp);
     }
+    @Override
     public void forward(){
         super.forward();
         // 判定 y 轴向下飞行出界
@@ -51,32 +55,42 @@ public class EliteAircraft extends AbstractAircraft{
             vanish();
         }
     }
+
+    /**
+     * 击败精英敌机随机产生道具
+     * @return 产生的道具
+     */
     public BaseProp generateNewProp(){
         double isGenProp = Math.random();
         if(isGenProp<0.3){
             return new BloodProp(
                     this.getLocationX(),
                     this.getLocationY(),
-                    3,
-                    10
+                    0,
+                    6
             );
         }else if(isGenProp<0.4){
             return new BombProp(
                     this.getLocationX(),
                     this.getLocationY(),
-                    3,
-                    10
+                    0,
+                    6
             );
         }else if(isGenProp<0.6){
             return new BulletProp(
                     this.getLocationX(),
                     this.getLocationY(),
-                    3,
-                    10
+                    0,
+                    6
             );
         }
         return new BulletProp() ;
     }
+
+    /**
+     * 通过射击产生子弹
+     * @return 产生的子弹列表
+     */
     @Override
     public List<BaseBullet> shoot() {
         List<BaseBullet> res = new LinkedList<>();
