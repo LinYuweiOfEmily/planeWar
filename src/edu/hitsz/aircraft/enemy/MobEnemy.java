@@ -1,7 +1,9 @@
-package edu.hitsz.aircraft;
+package edu.hitsz.aircraft.enemy;
 
+import edu.hitsz.aircraft.AbstractAircraft;
 import edu.hitsz.application.Main;
 import edu.hitsz.bullet.BaseBullet;
+import edu.hitsz.prop.BaseProp;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -12,12 +14,8 @@ import java.util.List;
  *
  * @author hitsz
  */
-public class MobEnemy extends AbstractAircraft {
-    private int score = 10;
+public class MobEnemy extends AbstractEnemyAircraft {
 
-    public int getScore() {
-        return score;
-    }
 
     /**
      * @param locationX 普通敌机位置x坐标
@@ -26,8 +24,13 @@ public class MobEnemy extends AbstractAircraft {
      * @param speedY 普通敌机射出的子弹的基准速度
      * @param hp    初始生命值
      */
-    public MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp) {
-        super(locationX, locationY, speedX, speedY, hp);
+    public MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp,int score) {
+        super(locationX, locationY, speedX, speedY, hp,score);
+    }
+
+    @Override
+    public BaseProp generateNewProp() {
+        return null;
     }
 
     @Override

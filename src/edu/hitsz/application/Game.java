@@ -1,8 +1,14 @@
 package edu.hitsz.application;
 
-import edu.hitsz.aircraft.*;
+import edu.hitsz.aircraft.enemy.AbstractEnemyAircraft;
+import edu.hitsz.aircraft.enemy.EliteAircraft;
+import edu.hitsz.aircraft.enemy.MobEnemy;
+import edu.hitsz.aircraft.hero.HeroAircraft;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.basic.AbstractFlyingObject;
+import edu.hitsz.factory.enemy.EnemyFactory;
+import edu.hitsz.factory.enemy.EliteFactory;
+import edu.hitsz.factory.enemy.MobFactory;
 import edu.hitsz.prop.BaseProp;
 import edu.hitsz.prop.BloodProp;
 import edu.hitsz.prop.BombProp;
@@ -23,6 +29,11 @@ import java.util.concurrent.*;
  */
 public class Game extends JPanel {
 
+    /**
+     * 敌机工厂
+     */
+    private EnemyFactory enemyFactory;
+
     private int backGroundTop = 0;
 
     /**
@@ -36,7 +47,7 @@ public class Game extends JPanel {
     private int timeInterval = 40;
 
     private final HeroAircraft heroAircraft;
-    private final List<AbstractAircraft> enemyAircrafts;
+    private final List<AbstractEnemyAircraft> enemyAircrafts;
     private final List<BaseBullet> heroBullets;
     private final List<BaseBullet> enemyBullets;
     private final List<BaseProp> props;
@@ -68,10 +79,7 @@ public class Game extends JPanel {
     private boolean gameOverFlag = false;
 
     public Game() {
-        heroAircraft = new HeroAircraft(
-                Main.WINDOW_WIDTH / 2,
-                Main.WINDOW_HEIGHT - ImageManager.HERO_IMAGE.getHeight(),
-                0, 0, 500);
+        heroAircraft = HeroAircraft.getInstance();
         props = new LinkedList<>();
         enemyAircrafts = new LinkedList<>();
         heroBullets = new LinkedList<>();
@@ -112,20 +120,24 @@ public class Game extends JPanel {
                      */
                     double randomNumber = Math.random();
                     if (randomNumber < 0.85) {
-                        enemyAircrafts.add(new MobEnemy(
+                        enemyFactory = new MobFactory();
+                        enemyAircrafts.add(enemyFactory.createEnemyAircraft(
                                 (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())),
                                 (int) (Math.random() * Main.WINDOW_HEIGHT * 0.05),
                                 0,
                                 5,
-                                30
+                                30,
+                                10
                         ));
                     } else {
-                        enemyAircrafts.add(new EliteAircraft(
+                        enemyFactory = new EliteFactory();
+                        enemyAircrafts.add(enemyFactory.createEnemyAircraft(
                                 (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())),
                                 (int) (Math.random() * Main.WINDOW_HEIGHT * 0.05),
                                 5,
                                 5,
-                                90
+                                90,
+                                100
                         ));
                     }
                 }
@@ -186,7 +198,7 @@ public class Game extends JPanel {
 
     private void shootAction() {
         // TODO 敌机射击
-        for (AbstractAircraft a : enemyAircrafts) {
+        for (AbstractEnemyAircraft a : enemyAircrafts) {
             enemyBullets.addAll(a.shoot());
         }
         // 英雄射击
@@ -209,7 +221,7 @@ public class Game extends JPanel {
     }
 
     private void aircraftsMoveAction() {
-        for (AbstractAircraft enemyAircraft : enemyAircrafts) {
+        for (AbstractEnemyAircraft enemyAircraft : enemyAircrafts) {
             enemyAircraft.forward();
         }
     }
@@ -239,7 +251,7 @@ public class Game extends JPanel {
             if (bullet.notValid()) {
                 continue;
             }
-            for (AbstractAircraft enemyAircraft : enemyAircrafts) {
+            for (AbstractEnemyAircraft enemyAircraft : enemyAircrafts) {
                 if (enemyAircraft.notValid()) {
                     // 已被其他子弹击毁的敌机，不再检测
                     // 避免多个子弹重复击毁同一敌机的判定
@@ -258,7 +270,10 @@ public class Game extends JPanel {
 
                         } else if (enemyAircraft instanceof EliteAircraft eliteAircraft) {
                             //击杀精英敌机的效果
-                            props.add(eliteAircraft.generateNewProp());
+                            BaseProp prop = eliteAircraft.generateNewProp();
+                            if(prop!=null){
+                                props.add(prop);
+                            }
                             score += eliteAircraft.getScore();
                         }
                     }
@@ -281,30 +296,11 @@ public class Game extends JPanel {
             if (heroAircraft.crash(prop)) {
                 // 英雄机撞击到道具
                 if (prop instanceof BloodProp bloodProp) {
-
-                    heroAircraft.increaseHp(bloodProp.getBlood());
-
+                    bloodProp.addBlood(heroAircraft);
                 } else if (prop instanceof BombProp bombProp) {
-
-                    for (AbstractAircraft aircraft : enemyAircrafts) {
-                        if (aircraft.notValid()) {
-                            continue;
-                        }
-                        aircraft.decreaseHp(bombProp.getPower());
-                        if (aircraft instanceof MobEnemy mobEnemy) {
-                            score += mobEnemy.getScore();
-                        } else if(aircraft instanceof EliteAircraft eliteAircraft){
-                            score += eliteAircraft.getScore();
-                            iterator.add(eliteAircraft.generateNewProp());
-                        }
-                    }
-                    System.out.println("BombSupply active");
-
+                    score += bombProp.bomb(enemyAircrafts,iterator);
                 } else if (prop instanceof BulletProp bulletProp) {
-
-                    heroAircraft.increaseShootNum();
-                    System.out.println("FireSupply active");
-
+                    bulletProp.addShootNum(heroAircraft);
                 }
                 prop.vanish();
             }

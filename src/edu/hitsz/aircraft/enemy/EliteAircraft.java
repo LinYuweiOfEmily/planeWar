@@ -1,18 +1,21 @@
-package edu.hitsz.aircraft;
+package edu.hitsz.aircraft.enemy;
 
 import edu.hitsz.application.Main;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.bullet.EnemyBullet;
-import edu.hitsz.bullet.HeroBullet;
+import edu.hitsz.factory.prop.PropFactory;
+import edu.hitsz.factory.prop.BloodPropFactory;
+import edu.hitsz.factory.prop.BombPropFactory;
+import edu.hitsz.factory.prop.BulletPropFactory;
 import edu.hitsz.prop.BaseProp;
-import edu.hitsz.prop.BloodProp;
-import edu.hitsz.prop.BombProp;
-import edu.hitsz.prop.BulletProp;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class EliteAircraft extends AbstractAircraft{
+/**
+ * @author linyu
+ */
+public class EliteAircraft extends AbstractEnemyAircraft {
     /**
      * 子弹一次发射数量
      */
@@ -21,11 +24,8 @@ public class EliteAircraft extends AbstractAircraft{
     /**
      * 击败精英敌机得到的分数
      */
-    private int score = 100;
+    private PropFactory propFactory;
 
-    public int getScore() {
-        return score;
-    }
 
     /**
      * 子弹伤害
@@ -44,8 +44,8 @@ public class EliteAircraft extends AbstractAircraft{
      * @param speedY 精英敌机射出的子弹的基准速度
      * @param hp    初始生命值
      */
-    public EliteAircraft(int locationX, int locationY, int speedX, int speedY, int hp) {
-        super(locationX, locationY, speedX, speedY, hp);
+    public EliteAircraft(int locationX, int locationY, int speedX, int speedY, int hp,int score) {
+        super(locationX, locationY, speedX, speedY, hp,score);
     }
     @Override
     public void forward(){
@@ -60,31 +60,36 @@ public class EliteAircraft extends AbstractAircraft{
      * 击败精英敌机随机产生道具
      * @return 产生的道具
      */
+    @Override
     public BaseProp generateNewProp(){
         double isGenProp = Math.random();
         if(isGenProp<0.3){
-            return new BloodProp(
+            propFactory = new BloodPropFactory();
+            return propFactory.createProp(
                     this.getLocationX(),
                     this.getLocationY(),
                     0,
                     6
             );
         }else if(isGenProp<0.4){
-            return new BombProp(
+            propFactory = new BombPropFactory();
+            return propFactory.createProp(
                     this.getLocationX(),
                     this.getLocationY(),
                     0,
                     6
             );
         }else if(isGenProp<0.6){
-            return new BulletProp(
+            propFactory = new BulletPropFactory();
+            return propFactory.createProp(
                     this.getLocationX(),
                     this.getLocationY(),
                     0,
                     6
             );
+        }else{
+            return null ;
         }
-        return new BulletProp() ;
     }
 
     /**

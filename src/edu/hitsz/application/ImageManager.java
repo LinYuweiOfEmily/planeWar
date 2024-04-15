@@ -1,9 +1,9 @@
 package edu.hitsz.application;
 
 
-import edu.hitsz.aircraft.EliteAircraft;
-import edu.hitsz.aircraft.HeroAircraft;
-import edu.hitsz.aircraft.MobEnemy;
+import edu.hitsz.aircraft.enemy.EliteAircraft;
+import edu.hitsz.aircraft.hero.HeroAircraft;
+import edu.hitsz.aircraft.enemy.MobEnemy;
 import edu.hitsz.bullet.EnemyBullet;
 import edu.hitsz.bullet.HeroBullet;
 import edu.hitsz.prop.BloodProp;

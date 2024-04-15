@@ -38,4 +38,5 @@ public abstract class BaseProp extends AbstractFlyingObject {
 //            speedY = -speedY;
 //        }
     }
+
 }

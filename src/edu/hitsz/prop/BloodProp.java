@@ -1,5 +1,7 @@
 package edu.hitsz.prop;
 
+import edu.hitsz.aircraft.hero.HeroAircraft;
+
 /**
  * @author linyu
  */
@@ -17,4 +19,10 @@ public class BloodProp extends BaseProp{
     public BloodProp(int locationX, int locationY, int speedX, int speedY) {
         super(locationX, locationY, speedX, speedY);
     }
+
+    public void addBlood(HeroAircraft heroAircraft) {
+        heroAircraft.increaseHp(this.blood);
+    }
+
+
 }
