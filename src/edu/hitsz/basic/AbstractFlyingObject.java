@@ -30,6 +30,10 @@ public abstract class AbstractFlyingObject {
      */
     protected int speedX;
 
+    public int getSpeedX() {
+        return speedX;
+    }
+
     /**
      * y 轴移动速度
      */

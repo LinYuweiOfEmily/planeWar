@@ -29,8 +29,8 @@ public class MobEnemy extends AbstractEnemyAircraft {
     }
 
     @Override
-    public BaseProp generateNewProp() {
-        return null;
+    public List<BaseProp> generateNewProp() {
+        return new LinkedList<>();
     }
 
     @Override

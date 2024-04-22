@@ -36,6 +36,7 @@ public class EliteAircraft extends AbstractEnemyAircraft {
      * 子弹射击方向 (向上发射：1，向下发射：-1)
      */
     private int direction = 1;
+    private int propNum = 1;
 
     /**
      * @param locationX 精英敌机位置x坐标
@@ -61,35 +62,29 @@ public class EliteAircraft extends AbstractEnemyAircraft {
      * @return 产生的道具
      */
     @Override
-    public BaseProp generateNewProp(){
-        double isGenProp = Math.random();
-        if(isGenProp<0.3){
-            propFactory = new BloodPropFactory();
-            return propFactory.createProp(
-                    this.getLocationX(),
-                    this.getLocationY(),
-                    0,
-                    6
-            );
-        }else if(isGenProp<0.4){
-            propFactory = new BombPropFactory();
-            return propFactory.createProp(
-                    this.getLocationX(),
-                    this.getLocationY(),
-                    0,
-                    6
-            );
-        }else if(isGenProp<0.6){
-            propFactory = new BulletPropFactory();
-            return propFactory.createProp(
-                    this.getLocationX(),
-                    this.getLocationY(),
-                    0,
-                    6
-            );
-        }else{
-            return null ;
+    public List<BaseProp> generateNewProp(){
+        List<BaseProp> props = new LinkedList<>();
+        for(int i=0;i<propNum;i++){
+            double isGenProp = Math.random();
+            if(isGenProp<0.3){
+                propFactory = new BloodPropFactory();
+            }else if(isGenProp<0.4){
+                propFactory = new BombPropFactory();
+            }else if(isGenProp<0.6){
+                propFactory = new BulletPropFactory();
+            }else{
+                propFactory = null;
+            }
+            if(propFactory!=null){
+                props.add(propFactory.createProp(
+                        this.getLocationX(),
+                        this.getLocationY()
+                ));
+            }
         }
+
+        return props;
+
     }
 
     /**

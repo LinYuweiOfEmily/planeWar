@@ -1,9 +1,7 @@
 package edu.hitsz.prop;
 
 import edu.hitsz.aircraft.AbstractAircraft;
-import edu.hitsz.aircraft.enemy.AbstractEnemyAircraft;
-import edu.hitsz.aircraft.enemy.EliteAircraft;
-import edu.hitsz.aircraft.enemy.MobEnemy;
+import edu.hitsz.aircraft.enemy.*;
 
 import java.util.List;
 import java.util.ListIterator;
@@ -24,24 +22,23 @@ public class BombProp extends BaseProp{
     public BombProp(int locationX, int locationY, int speedX, int speedY) {
         super(locationX, locationY, speedX, speedY);
     }
-    public int bomb(List<AbstractEnemyAircraft> enemyAircrafts, ListIterator<BaseProp> iterator){
+    public int[] bomb(List<AbstractEnemyAircraft> enemyAircrafts, ListIterator<BaseProp> iterator){
         int score = 0;
-        for (AbstractAircraft aircraft : enemyAircrafts) {
+        int isBoss = 0;
+        for (AbstractEnemyAircraft aircraft : enemyAircrafts) {
             if (aircraft.notValid()) {
                 continue;
             }
             aircraft.decreaseHp(this.power);
-            if (aircraft instanceof MobEnemy mobEnemy) {
-                score += mobEnemy.getScore();
-            } else if(aircraft instanceof EliteAircraft eliteAircraft){
-                score += eliteAircraft.getScore();
-                BaseProp prop1 = eliteAircraft.generateNewProp();
-                if(prop1!=null){
-                    iterator.add(prop1);
-                }
+            score += aircraft.getScore();
+            for(BaseProp a:aircraft.generateNewProp()){
+                iterator.add(a);
+            }
+            if(aircraft instanceof BossAircraft bossAircraft){
+                isBoss = 1;
             }
             System.out.println("BombSupply active");
         }
-        return score;
+        return new int[]{score,isBoss};
     }
 }

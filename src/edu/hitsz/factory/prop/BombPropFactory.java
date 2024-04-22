@@ -8,8 +8,10 @@ import edu.hitsz.prop.BombProp;
  */
 public class BombPropFactory implements PropFactory {
 
+    private int speedX = 0;
+    private int speedY = 6;
     @Override
-    public BaseProp createProp(int locationX, int locationY, int speedX, int speedY) {
+    public BaseProp createProp(int locationX, int locationY) {
         return new BombProp(locationX, locationY, speedX, speedY);
     }
 }

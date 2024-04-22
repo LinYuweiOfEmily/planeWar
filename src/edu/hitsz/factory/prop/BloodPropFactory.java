@@ -7,8 +7,10 @@ import edu.hitsz.prop.BloodProp;
  * @author linyu
  */
 public class BloodPropFactory implements PropFactory {
+    private int speedX = 0;
+    private int speedY = 6;
     @Override
-    public BaseProp createProp(int locationX, int locationY, int speedX, int speedY) {
+    public BaseProp createProp(int locationX, int locationY) {
         return new BloodProp(locationX, locationY, speedX, speedY);
     }
 }

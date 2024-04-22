@@ -3,6 +3,9 @@ package edu.hitsz.aircraft.enemy;
 import edu.hitsz.aircraft.AbstractAircraft;
 import edu.hitsz.prop.BaseProp;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * @author linyu
  */
@@ -17,5 +20,5 @@ public abstract class AbstractEnemyAircraft extends AbstractAircraft {
         super(locationX, locationY, speedX, speedY, hp);
         this.score = score;
     }
-    public abstract BaseProp generateNewProp();
+    public abstract List<BaseProp> generateNewProp();
 }
