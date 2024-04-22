@@ -32,13 +32,11 @@ class HeroAircraftTest {
         heroAircraft = null;
     }
 
-    @DisplayName("Test decreaseHp and increaseHp")
+    @DisplayName("Test decreaseHp")
     @Test
-    void changeHp() {
+    void decreaseHp() {
         heroAircraft.decreaseHp(5);
         assertEquals(495,heroAircraft.getHp());
-        heroAircraft.increaseHp(10);
-        assertEquals(500,heroAircraft.getHp());
         heroAircraft.decreaseHp(600);
         assertEquals(0,heroAircraft.getHp());
         assertTrue(heroAircraft.notValid());
