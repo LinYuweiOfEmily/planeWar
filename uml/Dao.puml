@@ -1,0 +1,30 @@
+@startuml
+'https://plantuml.com/class-diagram
+interface RankDao{
+    + select(): List<Rank>
+    + add(Rank rank): void
+}
+class RankDaoImpl{
+    - ranks: List<Rank>
+    - filePath: String
+    + RankDaoImpl()
+    + select(): List<Rank>
+    + add(Rank rank): void
+}
+class Rank{
+    - name: String
+    - score: int
+    - time: String
+    + Rank()
+    + Rank(String name, int score, String time)
+    + getName(): String
+    + setName(String name): void
+    + getScore(): int
+    + setScore(int score): void
+    + getTime(): String
+    + setTime(String time): void
+}
+Rank <-- RankDaoImpl
+RankDao <|.. RankDaoImpl
+RankDao <.. Game
+@enduml
