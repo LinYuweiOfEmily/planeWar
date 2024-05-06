@@ -1,14 +1,15 @@
 package edu.hitsz.aircraft.enemy;
 
+import edu.hitsz.Strategy.ShootStrategy;
+import edu.hitsz.Strategy.shoot.RingShoot;
+import edu.hitsz.Strategy.shoot.ScatterShoot;
 import edu.hitsz.application.Main;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.bullet.EnemyBullet;
-import edu.hitsz.factory.prop.BloodPropFactory;
-import edu.hitsz.factory.prop.BombPropFactory;
-import edu.hitsz.factory.prop.BulletPropFactory;
-import edu.hitsz.factory.prop.PropFactory;
+import edu.hitsz.factory.prop.*;
 import edu.hitsz.prop.BaseProp;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,15 +17,15 @@ import java.util.List;
  * @author linyu
  */
 public class ElitePlus extends AbstractEnemyAircraft {
-    private int direction = 1;
-    private int shootNum = 3;
-    private int power = 10;
-    private final double startAngle = Math.PI / 12;
-    private PropFactory propFactory;
-    private int propNum = 1;
 
     public ElitePlus(int locationX, int locationY, int speedX, int speedY, int hp, int score) {
         super(locationX, locationY, speedX, speedY, hp, score);
+        this.startAngle = Math.PI / 12;
+        this.shootNum = 3;
+        this.direction = 1;
+        this.power = 10;
+        this.shootStrategy = new ScatterShoot();
+        this.propNum = 1;
     }
 
     @Override
@@ -38,22 +39,7 @@ public class ElitePlus extends AbstractEnemyAircraft {
 
     @Override
     public List<BaseBullet> shoot() {
-        List<BaseBullet> res = new LinkedList<>();
-        int x = this.getLocationX();
-        int y = this.getLocationY() + direction * 3;
-        int speedY = this.getSpeedY() + direction * 5;
-        double angle = -startAngle;
-        BaseBullet bullet;
-
-        for (int i = 0; i < shootNum; i++) {
-            // 子弹发射位置相对飞机位置向前偏移
-            // 多个子弹横向分散
-            int speedX = (int) (speedY * Math.tan(angle));
-            bullet = new EnemyBullet(x + (i * 2 - shootNum + 1) * 10, y, speedX + this.getSpeedX(), speedY, power);
-            angle += startAngle;
-            res.add(bullet);
-        }
-        return res;
+        return super.shoot();
     }
 
     @Override
@@ -67,7 +53,9 @@ public class ElitePlus extends AbstractEnemyAircraft {
                 propFactory = new BombPropFactory();
             }else if(isGenProp<0.6){
                 propFactory = new BulletPropFactory();
-            }else{
+            }else if(isGenProp<0.8){
+                propFactory = new BulletPlusPropFactory();
+            }else {
                 propFactory = null;
             }
             if(propFactory!=null){

@@ -4,16 +4,18 @@ import edu.hitsz.aircraft.enemy.*;
 import edu.hitsz.aircraft.hero.HeroAircraft;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.basic.AbstractFlyingObject;
+import edu.hitsz.dao.RankDao;
+import edu.hitsz.dao.impl.RankDaoImpl;
+import edu.hitsz.dao.pojo.Rank;
 import edu.hitsz.factory.enemy.*;
-import edu.hitsz.prop.BaseProp;
-import edu.hitsz.prop.BloodProp;
-import edu.hitsz.prop.BombProp;
-import edu.hitsz.prop.BulletProp;
+import edu.hitsz.prop.*;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
@@ -72,6 +74,10 @@ public class Game extends JPanel {
     private int cycleDuration = 600;
     private int cycleTime = 0;
     private int lastScore = 0;
+
+    private RankDao rankDao = new RankDaoImpl();
+
+
     /**
      * 游戏结束标志
      */
@@ -113,9 +119,7 @@ public class Game extends JPanel {
             if(score-lastScore>=1000&&bossNum<1){
                 enemyFactory = new BossFactory();
                 System.out.println(score+","+lastScore);
-                enemyAircrafts.add(enemyFactory.createEnemyAircraft(
-
-                ));
+                enemyAircrafts.add(enemyFactory.createEnemyAircraft());
                 bossNum++;
             }
 
@@ -162,9 +166,28 @@ public class Game extends JPanel {
             // 游戏结束检查英雄机是否存活
             if (heroAircraft.getHp() <= 0) {
                 // 游戏结束
+                Scanner scanner = new Scanner(System.in);
+                System.out.print("是否要记录数据(Y/N): ");
+                String ans = scanner.nextLine();
+                if("Y".equals(ans)){
+                    Rank rank = new Rank();
+                    rank.setScore(score);
+                    rank.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd HH:mm")));
+                    rank.setName("testUsername");
+                    rankDao.add(rank);
+                }
+
+                List<Rank> ranks = rankDao.select();
+                System.out.println("****************************************");
+                System.out.println("                得分排行榜");
+                System.out.println("****************************************");
+                for (Rank a : ranks) {
+                    System.out.println("第" + (ranks.indexOf(a) + 1) + "名: " + a.getName() + "," + a.getScore() + "," + a.getTime());
+                }
                 executorService.shutdown();
                 gameOverFlag = true;
                 System.out.println("Game Over!");
+
             }
 
         };
@@ -196,7 +219,7 @@ public class Game extends JPanel {
         // TODO 敌机射击
         for (AbstractEnemyAircraft a : enemyAircrafts) {
             if(a instanceof BossAircraft){
-                if(time%600==0){
+                if(time%1200==0){
                     enemyBullets.addAll(a.shoot());
                 }
             }else{
@@ -267,11 +290,16 @@ public class Game extends JPanel {
                     if (enemyAircraft.notValid()) {
                         // TODO 获得分数，产生道具补给
                         if(enemyAircraft instanceof BossAircraft){
-                            bossNum--;
-                            lastScore = score;
+                            if(bossNum==1){
+                                bossNum = 0;
+                                lastScore = score;
+                                score += enemyAircraft.getScore();
+                                props.addAll(enemyAircraft.generateNewProp());
+                            }
+                        }else{
+                            score += enemyAircraft.getScore();
+                            props.addAll(enemyAircraft.generateNewProp());
                         }
-                        score += enemyAircraft.getScore();
-                        props.addAll(enemyAircraft.generateNewProp());
                     }
                 }
                 // 英雄机 与 敌机 相撞，均损毁
@@ -296,11 +324,14 @@ public class Game extends JPanel {
                 } else if (prop instanceof BombProp bombProp) {
                     int[] scores = bombProp.bomb(enemyAircrafts, iterator);
                     if(scores[1]==1){
+                        bossNum = 0;
                         lastScore = score;
                     }
                     score += scores[0];
                 } else if (prop instanceof BulletProp bulletProp) {
-                    bulletProp.addShootNum(heroAircraft);
+                    bulletProp.scatterShoot(heroAircraft);
+                }else if (prop instanceof BulletPlusProp bulletPlusProp){
+                    bulletPlusProp.ringShoot(heroAircraft);
                 }
                 prop.vanish();
             }

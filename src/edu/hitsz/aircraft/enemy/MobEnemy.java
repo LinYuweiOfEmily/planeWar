@@ -1,5 +1,6 @@
 package edu.hitsz.aircraft.enemy;
 
+import edu.hitsz.Strategy.ShootStrategy;
 import edu.hitsz.aircraft.AbstractAircraft;
 import edu.hitsz.application.Main;
 import edu.hitsz.bullet.BaseBullet;
@@ -24,7 +25,7 @@ public class MobEnemy extends AbstractEnemyAircraft {
      * @param speedY 普通敌机射出的子弹的基准速度
      * @param hp    初始生命值
      */
-    public MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp,int score) {
+    public MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp, int score) {
         super(locationX, locationY, speedX, speedY, hp,score);
     }
 

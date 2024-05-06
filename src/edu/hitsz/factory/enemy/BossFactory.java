@@ -1,5 +1,7 @@
 package edu.hitsz.factory.enemy;
 
+import edu.hitsz.Strategy.ShootStrategy;
+import edu.hitsz.Strategy.shoot.RingShoot;
 import edu.hitsz.aircraft.enemy.AbstractEnemyAircraft;
 import edu.hitsz.aircraft.enemy.BossAircraft;
 import edu.hitsz.aircraft.enemy.ElitePlus;

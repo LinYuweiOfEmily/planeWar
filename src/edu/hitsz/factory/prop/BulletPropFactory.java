@@ -13,4 +13,5 @@ public class BulletPropFactory implements PropFactory {
     public BaseProp createProp(int locationX, int locationY) {
         return new BulletProp(locationX,locationY,speedX,speedY);
     }
+
 }
