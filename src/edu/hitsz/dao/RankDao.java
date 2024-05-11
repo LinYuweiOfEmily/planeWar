@@ -18,4 +18,9 @@ public interface RankDao {
      * 添加数据
      */
     void add(Rank rank);
+
+    void delete(Rank rank);
+
+    String[][] toArray();
+    Rank selectById(int id);
 }

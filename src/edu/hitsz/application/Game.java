@@ -4,18 +4,17 @@ import edu.hitsz.aircraft.enemy.*;
 import edu.hitsz.aircraft.hero.HeroAircraft;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.basic.AbstractFlyingObject;
+import edu.hitsz.constant.VideoPathConstant;
 import edu.hitsz.dao.RankDao;
 import edu.hitsz.dao.impl.RankDaoImpl;
-import edu.hitsz.dao.pojo.Rank;
 import edu.hitsz.factory.enemy.*;
 import edu.hitsz.prop.*;
+import edu.hitsz.swing.ScoreTable;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
@@ -25,7 +24,7 @@ import java.util.concurrent.*;
  *
  * @author hitsz
  */
-public class Game extends JPanel {
+public abstract class Game extends JPanel {
 
     /**
      * 敌机工厂
@@ -62,6 +61,11 @@ public class Game extends JPanel {
      * 当前得分
      */
     private int score = 0;
+
+    public int getScore() {
+        return score;
+    }
+
     /**
      * 当前时刻
      */
@@ -74,6 +78,19 @@ public class Game extends JPanel {
     private int cycleDuration = 600;
     private int cycleTime = 0;
     private int lastScore = 0;
+    private long shootStrategy = 0;
+
+
+    /**
+     * 各个音乐线程路径
+     */
+    private MusicThread bgmThread = new MusicThread(VideoPathConstant.SEE_YOU_AGAIN_PATH);
+    private MusicThread bgmBossThread ;
+//    private MusicThread bombExplosionThread = new MusicThread("src/videos/bomb_explosion.wav");
+//    private MusicThread bulletThread = new MusicThread("src/videos/bullet.wav");
+//    private MusicThread bulletHitThread = new MusicThread("src/videos/bullet_hit.wav");
+    private MusicThread gameOverThread = new MusicThread(VideoPathConstant.GAME_OVER_PATH);
+//    private MusicThread getSupplyThread = new MusicThread("src/videos/get_supply.wav");
 
     private RankDao rankDao = new RankDaoImpl();
 
@@ -107,7 +124,7 @@ public class Game extends JPanel {
      * 游戏启动入口，执行游戏逻辑
      */
     public void action() {
-
+        bgmThread.start();
         // 定时任务：绘制、对象产生、碰撞判定、击毁及结束判定
         Runnable task = () -> {
 
@@ -117,6 +134,8 @@ public class Game extends JPanel {
             // 周期性执行（控制频率）
 
             if(score-lastScore>=1000&&bossNum<1){
+                bgmBossThread = new MusicThread(VideoPathConstant.BGM_BOSS_PATH);
+                bgmBossThread.start();
                 enemyFactory = new BossFactory();
                 System.out.println(score+","+lastScore);
                 enemyAircrafts.add(enemyFactory.createEnemyAircraft());
@@ -166,32 +185,25 @@ public class Game extends JPanel {
             // 游戏结束检查英雄机是否存活
             if (heroAircraft.getHp() <= 0) {
                 // 游戏结束
-                Scanner scanner = new Scanner(System.in);
-                System.out.print("是否要记录数据(Y/N): ");
-                String ans = scanner.nextLine();
-                if("Y".equals(ans)){
-                    Rank rank = new Rank();
-                    rank.setScore(score);
-                    rank.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd HH:mm")));
-                    rank.setName("testUsername");
-                    rankDao.add(rank);
-                }
+//                InputName dialog = new InputName();
+//                dialog.pack();
+//                dialog.setLocationRelativeTo(Main.cardPanel);
+//                dialog.setVisible(true);
+                ScoreTable scoreTable = new ScoreTable();
+                Main.cardPanel.add(scoreTable.getMainPanel());
+                Main.cardLayout.last(Main.cardPanel);
+                scoreTable.inputName();
 
-                List<Rank> ranks = rankDao.select();
-                System.out.println("****************************************");
-                System.out.println("                得分排行榜");
-                System.out.println("****************************************");
-                for (Rank a : ranks) {
-                    System.out.println("第" + (ranks.indexOf(a) + 1) + "名: " + a.getName() + "," + a.getScore() + "," + a.getTime());
-                }
+
+                bgmThread.stopMusic();
+                gameOverThread.start();
                 executorService.shutdown();
                 gameOverFlag = true;
                 System.out.println("Game Over!");
-
+                heroAircraft.increaseHp(500);
             }
 
         };
-
         /**
          * 以固定延迟时间进行执行
          * 本次任务执行完成后，需要延迟设定的延迟时间，才会执行新的任务
@@ -216,7 +228,7 @@ public class Game extends JPanel {
     }
 
     private void shootAction() {
-        // TODO 敌机射击
+        //  敌机射击
         for (AbstractEnemyAircraft a : enemyAircrafts) {
             if(a instanceof BossAircraft){
                 if(time%1200==0){
@@ -228,6 +240,7 @@ public class Game extends JPanel {
         }
         // 英雄射击
         heroBullets.addAll(heroAircraft.shoot());
+        new MusicThread(VideoPathConstant.BULLET_PATH).start();
     }
 
     private void bulletsMoveAction() {
@@ -283,6 +296,7 @@ public class Game extends JPanel {
                     continue;
                 }
                 if (enemyAircraft.crash(bullet)) {
+                    new MusicThread(VideoPathConstant.BULLET_HIT_PATH).start();
                     // 敌机撞击到英雄机子弹
                     // 敌机损失一定生命值
                     enemyAircraft.decreaseHp(bullet.getPower());
@@ -292,6 +306,7 @@ public class Game extends JPanel {
                         if(enemyAircraft instanceof BossAircraft){
                             if(bossNum==1){
                                 bossNum = 0;
+                                bgmBossThread.stopMusic();
                                 lastScore = score;
                                 score += enemyAircraft.getScore();
                                 props.addAll(enemyAircraft.generateNewProp());
@@ -318,20 +333,55 @@ public class Game extends JPanel {
                 continue;
             }
             if (heroAircraft.crash(prop)) {
+                new MusicThread(VideoPathConstant.GET_SUPPLY_PATH).start();
                 // 英雄机撞击到道具
                 if (prop instanceof BloodProp bloodProp) {
                     bloodProp.addBlood(heroAircraft);
                 } else if (prop instanceof BombProp bombProp) {
+                    new MusicThread(VideoPathConstant.BOMB_EXPLOSION_PATH).start();
                     int[] scores = bombProp.bomb(enemyAircrafts, iterator);
                     if(scores[1]==1){
                         bossNum = 0;
+                        bgmBossThread.stopMusic();
                         lastScore = score;
                     }
                     score += scores[0];
                 } else if (prop instanceof BulletProp bulletProp) {
-                    bulletProp.scatterShoot(heroAircraft);
+                    Runnable task = ()->{
+                        if("scannerThread".equals(Thread.currentThread().getName())){
+                            shootStrategy = Thread.currentThread().threadId();
+                            System.out.println(Thread.currentThread().getName());
+                            bulletProp.scatterShoot(heroAircraft);
+                            try {
+                                Thread.sleep(3000);
+                                if(shootStrategy==Thread.currentThread().threadId()){
+                                    bulletProp.directShoot(heroAircraft);
+                                    shootStrategy = 0;
+                                }
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    };
+                    new Thread(task,"scannerThread").start();
                 }else if (prop instanceof BulletPlusProp bulletPlusProp){
-                    bulletPlusProp.ringShoot(heroAircraft);
+                    Runnable task = ()->{
+                        if("ringThread".equals(Thread.currentThread().getName())){
+                            shootStrategy = Thread.currentThread().threadId();
+                            System.out.println(Thread.currentThread().getName());
+                            bulletPlusProp.ringShoot(heroAircraft);
+                            try {
+                                Thread.sleep(3000);
+                                if(shootStrategy==Thread.currentThread().threadId()){
+                                    bulletPlusProp.directShoot(heroAircraft);
+                                    shootStrategy = 0;
+                                }
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    };
+                    new Thread(task,"ringThread").start();
                 }
                 prop.vanish();
             }

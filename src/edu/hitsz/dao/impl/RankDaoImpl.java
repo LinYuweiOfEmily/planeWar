@@ -60,4 +60,34 @@ public class RankDaoImpl implements RankDao {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void delete(Rank rank){
+        ranks.remove(rank);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath,false))) {
+            for (Rank rank1 : ranks) {
+                String line = rank1.getName() + "," + rank1.getScore()+","+rank1.getTime();
+                writer.write(line);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public String[][] toArray(){
+        String[][] datas = new String[ranks.size()][];
+        int i = 0;
+        for (Rank rank : ranks) {
+            datas[i] = new String[]{String.valueOf(i+1),rank.getName(),String.valueOf(rank.getScore()),rank.getTime()};
+            i++;
+        }
+        return datas;
+    }
+
+    @Override
+    public Rank selectById(int id) {
+        return ranks.get(id);
+    }
 }

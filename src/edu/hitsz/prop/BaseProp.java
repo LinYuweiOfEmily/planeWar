@@ -1,5 +1,9 @@
 package edu.hitsz.prop;
 
+import edu.hitsz.Strategy.shoot.DirectShoot;
+import edu.hitsz.Strategy.shoot.RingShoot;
+import edu.hitsz.Strategy.shoot.ScatterShoot;
+import edu.hitsz.aircraft.hero.HeroAircraft;
 import edu.hitsz.application.Main;
 import edu.hitsz.basic.AbstractFlyingObject;
 
@@ -39,4 +43,8 @@ public abstract class BaseProp extends AbstractFlyingObject {
 //        }
     }
 
+    public void directShoot(HeroAircraft heroAircraft){
+        heroAircraft.setShootNum(1);
+        heroAircraft.setShootStrategy(new DirectShoot());
+    }
 }

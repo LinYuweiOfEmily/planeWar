@@ -16,4 +16,5 @@ public class BulletProp extends BaseProp{
         heroAircraft.setStartAngle(Math.PI / 12);
         heroAircraft.setShootStrategy(new ScatterShoot());
     }
+
 }
