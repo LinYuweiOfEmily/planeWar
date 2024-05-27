@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:srcCompat="@drawable/bg_start"
+        tools:layout_editor_absoluteX="28dp"
+        tools:layout_editor_absoluteY="0dp" />
+
+    <Button
+        android:id="@+id/singleBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="300dp"
+        android:onClick="singleBtn"
+        android:text="单机模式"
+        android:textColor="@color/white"
+        android:textSize="32sp"
+        app:layout_constraintBottom_toTopOf="@+id/radioGroup"
+        app:layout_constraintEnd_toEndOf="@+id/image"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        tools:ignore="MissingConstraints">
+
+    </Button>
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="220dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@+id/image"
+        app:layout_constraintEnd_toEndOf="@+id/image"
+        app:layout_constraintStart_toStartOf="@+id/image"
+        app:layout_constraintTop_toBottomOf="@id/singleBtn"
+        app:layout_constraintVertical_bias="0.0"
+        tools:ignore="MissingConstraints">
+
+        <RadioButton
+            android:id="@+id/radio_on"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:button="@android:drawable/btn_radio"
+            android:buttonTint="@color/white"
+            android:checked="false"
+            android:focusable="auto"
+            android:text="开启音乐"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            tools:ignore="MissingConstraints" />
+
+        <RadioButton
+            android:id="@+id/radio_of"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:button="@android:drawable/btn_radio"
+            android:checked="true"
+            android:text="关闭音乐"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            tools:ignore="MissingConstraints" />
+    </RadioGroup>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
