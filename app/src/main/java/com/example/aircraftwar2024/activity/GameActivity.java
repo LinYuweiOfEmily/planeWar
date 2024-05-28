@@ -1,6 +1,7 @@
 package com.example.aircraftwar2024.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -9,6 +10,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.aircraftwar2024.game.BaseGame;
@@ -20,6 +22,18 @@ import com.example.aircraftwar2024.game.MediumGame;
 public class GameActivity extends AppCompatActivity {
     private static final String TAG = "GameActivity";
 
+
+    public Handler mHandler = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            if("heroAircraft is not Valid".equals((String) msg.obj)){
+
+                Intent intent = new Intent(GameActivity.this,RecordActivity.class);
+                intent.putExtra("score",msg.arg1);
+                startActivity(intent);
+            }
+        }
+    };
     private int gameType=0;
     public static int screenWidth,screenHeight;
 

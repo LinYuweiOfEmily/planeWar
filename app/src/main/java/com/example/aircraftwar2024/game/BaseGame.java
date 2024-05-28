@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Message;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -132,9 +133,11 @@ public abstract class BaseGame extends SurfaceView implements SurfaceHolder.Call
     private final EnemyFactory bossEnemyFactory;
     private final Random random = new Random();
 
+    private GameActivity gameContext;
+
     public BaseGame(Context context){
         super(context);
-
+        gameContext = (GameActivity)context;
         mbLoop = true;
         mPaint = new Paint();  //设置画笔
         mSurfaceHolder = this.getHolder();
@@ -411,6 +414,10 @@ public abstract class BaseGame extends SurfaceView implements SurfaceHolder.Call
         flyingSupplies.removeIf(AbstractFlyingObject::notValid);
 
         if (heroAircraft.notValid()) {
+            Message message = new Message();
+            message.obj = "heroAircraft is not Valid";
+            message.arg1 = score;
+            gameContext.mHandler.sendMessage(message);
             surfaceDestroyed(mSurfaceHolder);
             gameOverFlag = true;
             mbLoop = false;

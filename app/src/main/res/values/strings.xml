@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">AircraftWar2024</string>
+    <string name="dialog_message">确认删除第%d条消息？</string>
+    <string name="dialog_title">提示</string>
+    <string name="ok">确认</string>
+    <string name="cancel">取消</string>
 </resources>
