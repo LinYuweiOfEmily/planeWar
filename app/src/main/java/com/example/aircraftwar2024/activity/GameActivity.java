@@ -1,6 +1,5 @@
 package com.example.aircraftwar2024.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,11 +7,11 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.aircraftwar2024.R;
 import com.example.aircraftwar2024.game.BaseGame;
 import com.example.aircraftwar2024.game.EasyGame;
 import com.example.aircraftwar2024.game.HardGame;
@@ -23,6 +22,12 @@ public class GameActivity extends AppCompatActivity {
     private static final String TAG = "GameActivity";
 
 
+    public boolean isMusicOnOff() {
+        return musicOnOff;
+    }
+
+    private  boolean musicOnOff;
+
     public Handler mHandler = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -30,6 +35,7 @@ public class GameActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(GameActivity.this,RecordActivity.class);
                 intent.putExtra("score",msg.arg1);
+                intent.putExtra("gameType",gameType);
                 startActivity(intent);
             }
         }
@@ -40,7 +46,14 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        ActivityManager activityManager = ActivityManager.getActivityManager();
+        activityManager.addActivity(this);
+        int onOff = getIntent().getIntExtra("MusicOnOff", R.id.radio_off);
+        if(onOff==R.id.radio_off){
+            musicOnOff = false;
+        }else {
+            musicOnOff = true;
+        }
         getScreenHW();
 
         if(getIntent() != null){

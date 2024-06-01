@@ -7,33 +7,37 @@
 
     <TextView
         android:id="@+id/rank"
-        android:layout_width="wrap_content"
+        android:layout_width="30dp"
         android:layout_height="50dp"
         android:layout_marginStart="16dp"
+        android:textAlignment="center"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/username"
-        android:layout_width="wrap_content"
+        android:layout_width="30dp"
         android:layout_height="50dp"
         android:layout_marginStart="10dp"
+        android:textAlignment="center"
         app:layout_constraintStart_toEndOf="@id/rank"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/score"
-        android:layout_width="wrap_content"
+        android:layout_width="30dp"
         android:layout_height="50dp"
         android:layout_marginStart="10dp"
+        android:textAlignment="center"
         app:layout_constraintStart_toEndOf="@id/username"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/time"
-        android:layout_width="wrap_content"
+        android:layout_width="250dp"
         android:layout_height="50dp"
         android:layout_marginStart="10dp"
+        android:textAlignment="center"
         app:layout_constraintStart_toEndOf="@id/score"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

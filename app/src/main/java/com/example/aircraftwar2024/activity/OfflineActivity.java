@@ -13,6 +13,9 @@ public class OfflineActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ActivityManager activityManager = ActivityManager.getActivityManager();
+
+        activityManager.addActivity(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_offline);
         Button easyBtn = (Button) findViewById(R.id.easyBtn);
@@ -23,6 +26,7 @@ public class OfflineActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(OfflineActivity.this, GameActivity.class);
                 intent.putExtra("gameType",1);
+                intent.putExtra("MusicOnOff",getIntent().getIntExtra("MusicOnOff",R.id.radio_off));
                 startActivity(intent);
             }
         });
@@ -31,6 +35,7 @@ public class OfflineActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(OfflineActivity.this, GameActivity.class);
                 intent.putExtra("gameType",2);
+                intent.putExtra("MusicOnOff",getIntent().getIntExtra("MusicOnOff",R.id.radio_off));
                 startActivity(intent);
             }
         });
@@ -39,6 +44,7 @@ public class OfflineActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(OfflineActivity.this, GameActivity.class);
                 intent.putExtra("gameType",3);
+                intent.putExtra("MusicOnOff",getIntent().getIntExtra("MusicOnOff",R.id.radio_off));
                 startActivity(intent);
             }
         });

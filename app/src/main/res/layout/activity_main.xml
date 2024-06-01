@@ -60,7 +60,7 @@
             tools:ignore="MissingConstraints" />
 
         <RadioButton
-            android:id="@+id/radio_of"
+            android:id="@+id/radio_off"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:button="@android:drawable/btn_radio"
