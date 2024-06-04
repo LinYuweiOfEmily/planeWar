@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import com.example.aircraftwar2024.ImageManager;
 import com.example.aircraftwar2024.R;
 import com.example.aircraftwar2024.activity.GameActivity;
+import com.example.aircraftwar2024.activity.MainActivity;
 import com.example.aircraftwar2024.aircraft.AbstractAircraft;
 import com.example.aircraftwar2024.aircraft.AbstractEnemyAircraft;
 import com.example.aircraftwar2024.aircraft.BossEnemy;
@@ -46,9 +47,9 @@ public abstract class BaseGame extends SurfaceView implements SurfaceHolder.Call
     public static final String TAG = "BaseGame";
     private Context context;
     boolean mbLoop; //控制绘画线程的标志位
-    private final SurfaceHolder mSurfaceHolder;
-    private Canvas canvas;  //绘图的画布
-    private final Paint mPaint;
+    protected final SurfaceHolder mSurfaceHolder;
+    protected Canvas canvas;  //绘图的画布
+    protected final Paint mPaint;
 
     //点击屏幕位置
     float clickX = 0, clickY=0;
@@ -95,18 +96,20 @@ public abstract class BaseGame extends SurfaceView implements SurfaceHolder.Call
      */
     private final int timeInterval = 16;
 
-    private final HeroAircraft heroAircraft;
+    protected final HeroAircraft heroAircraft;
 
     protected final List<AbstractEnemyAircraft> enemyAircrafts;
-    private final List<AbstractFlyingSupply> flyingSupplies;
+    protected final List<AbstractFlyingSupply> flyingSupplies;
 
-    private final List<AbstractBullet> heroBullets;
-    private final List<AbstractBullet> enemyBullets;
+    protected final List<AbstractBullet> heroBullets;
+    protected final List<AbstractBullet> enemyBullets;
 
     protected int enemyMaxNumber = 5;
 
-    private boolean gameOverFlag = false;
-    private int score = 0;
+    protected boolean gameOverFlag = false;
+    protected int score = 0;
+    private int OtherScore = 0;
+    protected boolean stopDraw = false;
 
 
     /**
@@ -136,14 +139,15 @@ public abstract class BaseGame extends SurfaceView implements SurfaceHolder.Call
     private final EnemyFactory eliteEnemyFactory;
     private final EnemyFactory bossEnemyFactory;
     private final Random random = new Random();
-    private MyMediaPlayer bgmPlayer ;
-    private MyMediaPlayer bossGgmPlayer;
-    private MySoundPool mySoundPool ;
+    protected MyMediaPlayer bgmPlayer ;
+    protected MyMediaPlayer bossGgmPlayer;
+    protected MySoundPool mySoundPool ;
 
-    private GameActivity gameContext;
+    protected GameActivity gameContext;
 
     public BaseGame(Context context){
         super(context);
+        MainActivity.isHeroExit = true;
         this.context = context;
         bgmPlayer = new MyMediaPlayer(R.raw.bgm,context);
         bgmPlayer.playMusic();
@@ -193,39 +197,41 @@ public abstract class BaseGame extends SurfaceView implements SurfaceHolder.Call
 
         //new Thread(new Runnable() {
         Runnable task = () -> {
+            if(!stopDraw){
 
-            // 周期性执行（控制频率）
-            if (timeCountAndNewCycleJudge()) {
-                // produceBoss 根据游戏难度策略产生 BOSS
-                //根据游戏设定，随着时间提高游戏难度
-                tick();
-                enemyAircrafts.addAll(produceBoss());
+                MainActivity.scoreYour = score;
+                // 周期性执行（控制频率）
+                if (timeCountAndNewCycleJudge()) {
+                    // produceBoss 根据游戏难度策略产生 BOSS
+                    //根据游戏设定，随着时间提高游戏难度
+                    tick();
+                    enemyAircrafts.addAll(produceBoss());
 
-                // produceEnemy 根据游戏难度策略产生精英敌机和小敌机
-                enemyAircrafts.addAll(produceEnemy());
-                if(shouldHeroShoot()){
-                    heroShootAction();
+                    // produceEnemy 根据游戏难度策略产生精英敌机和小敌机
+                    enemyAircrafts.addAll(produceEnemy());
+                    if(shouldHeroShoot()){
+                        heroShootAction();
+                    }
+
+                    if(shouldEnemyShoot()){
+                        enemyShootAction();
+                    }
+
                 }
 
-                if(shouldEnemyShoot()){
-                    enemyShootAction();
+                // 子弹移动
+                bulletsMoveAction();
+                // 飞机移动
+                aircraftsMoveAction();
+
+                suppliesMoveAction();
+
+                // 撞击检测
+                try {
+                    crashCheckAction();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-
-            }
-
-            // 子弹移动
-            bulletsMoveAction();
-            // 飞机移动
-            aircraftsMoveAction();
-
-            suppliesMoveAction();
-
-            // 撞击检测
-            try {
-
-                crashCheckAction();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
             // 后处理
             postProcessAction();
@@ -258,7 +264,7 @@ public abstract class BaseGame extends SurfaceView implements SurfaceHolder.Call
     public int getScore() {
         return score;
     }
-    private boolean existBoss() {
+    protected boolean existBoss() {
         for (AbstractEnemyAircraft enemyAircraft : enemyAircrafts) {
             if (enemyAircraft instanceof BossEnemy) {
                 return true;
@@ -312,20 +318,23 @@ public abstract class BaseGame extends SurfaceView implements SurfaceHolder.Call
     }
 
     public void heroController(){
-        setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                clickX = motionEvent.getX();
-                clickY = motionEvent.getY();
-                heroAircraft.setLocation(clickX, clickY);
-
-                if ( clickX<0 || clickX> GameActivity.screenWidth || clickY<0 || clickY>GameActivity.screenHeight){
-                    // 防止超出边界
-                    return false;
+        if(MainActivity.isHeroExit){
+            setOnTouchListener(new OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    if(MainActivity.isHeroExit){
+                        clickX = motionEvent.getX();
+                        clickY = motionEvent.getY();
+                        heroAircraft.setLocation(clickX, clickY);
+                        if ( clickX<0 || clickX> GameActivity.screenWidth || clickY<0 || clickY>GameActivity.screenHeight){
+                            // 防止超出边界
+                            return false;
+                        }
+                    }
+                    return true;
                 }
-                return true;
-            }
-        });
+            });
+        }
     }
 
 
@@ -435,13 +444,14 @@ public abstract class BaseGame extends SurfaceView implements SurfaceHolder.Call
      * <p>
      * 无效的原因可能是撞击或者飞出边界
      */
-    private void postProcessAction() {
+    protected void postProcessAction() {
         enemyBullets.removeIf(AbstractFlyingObject::notValid);
         heroBullets.removeIf(AbstractFlyingObject::notValid);
         enemyAircrafts.removeIf(AbstractFlyingObject::notValid);
         flyingSupplies.removeIf(AbstractFlyingObject::notValid);
 
         if (heroAircraft.notValid()) {
+            MainActivity.isHeroExit = false;
             bgmPlayer.stopMusic();
             if(existBoss()){
                 bossGgmPlayer.stopMusic();
@@ -465,7 +475,6 @@ public abstract class BaseGame extends SurfaceView implements SurfaceHolder.Call
         if(mSurfaceHolder == null || canvas == null){
             return;
         }
-
         //绘制背景，图片滚动
         canvas.drawBitmap(backGround,0,this.backGroundTop-backGround.getHeight(),mPaint);
         canvas.drawBitmap(backGround,0,this.backGroundTop,mPaint);
@@ -490,6 +499,7 @@ public abstract class BaseGame extends SurfaceView implements SurfaceHolder.Call
                 heroAircraft.getLocationY()- ImageManager.HERO_IMAGE.getHeight() / 2,
                 mPaint);
 
+
         //画生命值和分数
         paintScoreAndLife();
 
@@ -510,7 +520,7 @@ public abstract class BaseGame extends SurfaceView implements SurfaceHolder.Call
         }
     }
 
-    private void paintScoreAndLife() {
+    public void paintScoreAndLife() {
         /**TODO:动态绘制文本框显示英雄机的分数和生命值**/
         mPaint.setColor(Color.RED);
         mPaint.setTextSize(60);

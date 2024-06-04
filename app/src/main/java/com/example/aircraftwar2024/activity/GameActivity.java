@@ -10,12 +10,14 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.example.aircraftwar2024.R;
 import com.example.aircraftwar2024.game.BaseGame;
 import com.example.aircraftwar2024.game.EasyGame;
 import com.example.aircraftwar2024.game.HardGame;
 import com.example.aircraftwar2024.game.MediumGame;
+import com.example.aircraftwar2024.game.OnlineGame;
 
 
 public class GameActivity extends AppCompatActivity {
@@ -28,16 +30,23 @@ public class GameActivity extends AppCompatActivity {
 
     private  boolean musicOnOff;
 
-    public Handler mHandler = new Handler(Looper.getMainLooper()){
+    public  Handler mHandler = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(@NonNull Message msg) {
             if("heroAircraft is not Valid".equals((String) msg.obj)){
-
-                Intent intent = new Intent(GameActivity.this,RecordActivity.class);
-                intent.putExtra("score",msg.arg1);
-                intent.putExtra("gameType",gameType);
-                startActivity(intent);
+                if(gameType!=4){
+                    Intent intent = new Intent(GameActivity.this,RecordActivity.class);
+                    intent.putExtra("score",msg.arg1);
+                    intent.putExtra("gameType",gameType);
+                    startActivity(intent);
+                }else{
+                    if(!MainActivity.isHeroExit&&!MainActivity.isEnemyHeroExit){
+                        Intent intent = new Intent(GameActivity.this,OnlineActivity.class);
+                        startActivity(intent);
+                    }
+                }
             }
+
         }
     };
     private int gameType=0;
@@ -59,15 +68,16 @@ public class GameActivity extends AppCompatActivity {
         if(getIntent() != null){
             gameType = getIntent().getIntExtra("gameType",1);
         }
-
         /*TODO:根据用户选择的难度加载相应的游戏界面*/
         BaseGame baseGameView = null;
         if(gameType==1){
             baseGameView = new EasyGame(this);
         } else if (gameType==2) {
             baseGameView = new MediumGame(this);
-        }else{
+        }else if (gameType==3){
             baseGameView = new HardGame(this);
+        }else {
+            baseGameView = new OnlineGame(this);
         }
         setContentView(baseGameView);
     }
